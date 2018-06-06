@@ -26,46 +26,6 @@ directory = getpath.get_script_dir()
 
 log = Logger('System')
 
-def get_offer_points():
-    allOfferCardTitles = driver.find_elements_by_xpath(xpath['rewardsHomeCardTitle'])
-    allOfferCardStatuses = driver.find_elements_by_xpath(xpath['rewardsHomeCardCheckmarkOrChevron'])
-    allVisibleOfferCardStatuses = [x for x in allOfferCardStatuses if x.is_displayed()]
-
-    allOfferCardPoints = driver.find_elements_by_xpath(xpath['rewardsHomeCardPoints'])
-    allVisibleOfferCardPoints = [x for x in allOfferCardPoints if x.is_displayed()]
-
-    for i in range(0,len(allVisibleOfferCardStatuses)):
-        elem = allVisibleOfferCardStatuses[i]
-        if "mee-icon-ChevronRight" in elem.get_attribute("class"):
-            titleElem = allOfferCardTitles[i]
-
-            # Got to clean this up
-            if "Quiz" in titleElem.text or "quiz" in titleElem.text:
-                numPointsStr = allVisibleOfferCardPoints[i].text.replace(' POINTS','')
-                elem.click()
-                time.sleep(searchPause)
-                currTab = driver.window_handles[0]
-                newTab = driver.window_handles[-1]
-                driver.switch_to_window(newTab)
-                click(xpath['startQuizButton'])
-                solve_quiz(int(numPointsStr))
-                driver.close()
-                driver.switch_to_window(currTab)
-                get_offer_points()
-                return
-            else:
-                elem.click()
-                time.sleep(searchPause)
-                currTab = driver.window_handles[0]
-                newTab = driver.window_handles[-1]
-                driver.switch_to_window(newTab)
-                driver.close()
-                driver.switch_to_window(currTab)
-                get_offer_points()
-                return
-
-
-
 accounts = load_accounts('accounts.txt')
 log.log('System', accounts)
 msg = "Botting {} accounts:".format(len(accounts.items()))
