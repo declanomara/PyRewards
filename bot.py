@@ -23,7 +23,9 @@ class RewardsBot:
         self.numMobileSearches = 20
         self.authPause = 10
         self.searchPause = 5
+        self.profile = None
         self.driver = None
+        self.mobile = False
 
         self.starturl = "https://account.microsoft.com/rewards/dashboard"
         self.directory = getpath.get_script_dir()
@@ -38,7 +40,11 @@ class RewardsBot:
         return queries
 
     def get_points(self):
-        self.driver.get('https://account.microsoft.com/rewards')
+        if self.driver.current_url == 'https://account.microsoft.com/rewards':
+            pass
+        else:
+            self.driver.get('https://account.microsoft.com/rewards')
+
         time.sleep(5)
         source = self.driver.page_source
         soup = BeautifulSoup(source, 'html.parser')
@@ -85,15 +91,45 @@ class RewardsBot:
                     get_offer_points()
                     return
 
-    def do_searches(self, numSearches, searchQuries):
+    def do_searches(self, numSearches, searchQueries):
         for _ in range(0, numSearches):
-            self.clear(xpath['search'])
-            self.send(xpath['search'], searchQuries.pop())
-            self.click(xpath['searchButton'])
-            time.sleep(self.searchPause)
+            try:
+                if self.mobile:
+                    term = searchQueries.pop().replace(' ', '+')
+                    url = "https://www.bing.com/?q={}".format(term)
+                    self.driver.get(url)
+                    time.sleep(self.searchPause)
+                else:
+                    self.clear(xpath['search'])
+                    self.send(xpath['search'], searchQueries.pop())
+                    self.click(xpath['searchButton'])
+                    time.sleep(self.searchPause)
+            except selenium.common.exceptions.UnexpectedAlertPresentException:
+                alert = browser.switch_to.alert
+                alert.accept()
+                
 
-    def visit_PC_search_page(self):
+
+
+
+    def visit_search_page(self):
         self.driver.get('https://www.bing.com')
+
+    def set_pc(self):
+        self.mobile = False
+        self.profile = webdriver.FirefoxProfile('/home/declan/.mozilla/firefox/18he6f1k.auto')
+        userAgentString = "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0"
+        self.profile.set_preference("general.useragent.override", userAgentString)
+        self.driver = webdriver.Firefox(self.profile)
+        self.login()
+
+    def set_mobile(self):
+        self.mobile = True
+        self.profile = webdriver.FirefoxProfile('/home/declan/.mozilla/firefox/18he6f1k.auto')
+        userAgentString = "Mozilla/5.0 (Android 5.0.1; Mobile; rv:58.0) Gecko/58.0 Firefox/58.0"
+        self.profile.set_preference("general.useragent.override", userAgentString)
+        self.driver = webdriver.Firefox(self.profile)
+        self.login()
 
     def clear(self, xpath):
         try:
@@ -121,6 +157,8 @@ class RewardsBot:
     # Authenticate Bing Rewards Account
     def login(self):
         #self.driver.maximize_window()
+        #self.driver.set_window_size(0, 0)
+        self.driver.set_window_position(-2000, 0)
         self.driver.get(self.starturl)
         self.click(xpath['signInLink'])
         time.sleep(self.authPause/2)
