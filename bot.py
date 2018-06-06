@@ -11,6 +11,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 #from selenium.webdriver.common.by import By
 #from selenium.webdriver.support.ui import WebDriverWait
 #from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
 from BingSelectors import xpath
 
 
@@ -35,6 +36,16 @@ class RewardsBot:
         while len(queries) < numQueries:
             queries.add(random.choice(allWords).rstrip())
         return queries
+
+    def get_points(self):
+        self.driver.get('https://account.microsoft.com/rewards')
+        time.sleep(5)
+        source = self.driver.page_source
+        soup = BeautifulSoup(source, 'html.parser')
+        content = soup.find_all('p', {'class':'bold number margin-top-1'})
+        points = content[0].text
+
+        return points
 
     def get_offer_points(self):
         allOfferCardTitles = driver.find_elements_by_xpath(xpath['rewardsHomeCardTitle'])
