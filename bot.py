@@ -16,7 +16,12 @@ from BingSelectors import xpath
 
 
 class RewardsBot:
-    def __init__(self, usnm, pswd):
+    def __init__(self, usnm, pswd, log=None):
+        if log == None:
+            self.do_log = False
+        else:
+            self.do_log = True
+            self.log = log
         self.username = usnm
         self.password = pswd
         self.numSearches = 30
@@ -98,16 +103,21 @@ class RewardsBot:
                     term = searchQueries.pop().replace(' ', '+')
                     url = "https://www.bing.com/?q={}".format(term)
                     self.driver.get(url)
+                    if self.do_log:
+                        self.log.log('System', 'Searched term: {}'.format(term))
                     time.sleep(self.searchPause)
                 else:
                     self.clear(xpath['search'])
-                    self.send(xpath['search'], searchQueries.pop())
+                    term = searchQueries.pop()
+                    self.send(xpath['search'], term)
                     self.click(xpath['searchButton'])
+                    if self.do_log:
+                        self.log.log('System', 'Searched term: {}'.format(term))
                     time.sleep(self.searchPause)
             except selenium.common.exceptions.UnexpectedAlertPresentException:
                 alert = browser.switch_to.alert
                 alert.accept()
-                
+
 
 
 

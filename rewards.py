@@ -20,6 +20,7 @@ numSearches = 30
 numMobileSearches = 20
 authPause = 10
 searchPause = 5
+do_mobile = False
 
 starturl = "https://account.microsoft.com/rewards/dashboard"
 directory = getpath.get_script_dir()
@@ -38,7 +39,7 @@ for account in accounts:
     password = accounts[account]
 
     # Create new bot account instance and login
-    rb = RewardsBot(username, password)
+    rb = RewardsBot(username, password, log=log)
     rb.terms = rb.get_random_queries(numSearches+numMobileSearches)
 
 
@@ -48,22 +49,24 @@ for account in accounts:
     rb.set_pc()
     log.log('System', 'Using PC user agent')
 
+    '''
     # Get initial points of account to track growth
     initial = rb.get_points()
     initial = int(initial.replace(',', ''))
     msg = "Gathered initial point value of {}, {}".format(username, initial)
     log.log('System', msg)
-
+    '''
     rb.visit_search_page()
 
     rb.do_searches(numSearches, rb.terms)
     rb.driver.close()
 
-    rb.set_mobile()
-    log.log('System', 'Using mobile user agent')
-    rb.visit_search_page()
-    rb.do_searches(numMobileSearches, rb.terms)
-
+    if do_mobile:
+        rb.set_mobile()
+        log.log('System', 'Using mobile user agent')
+        rb.visit_search_page()
+        rb.do_searches(numMobileSearches, rb.terms)
+    '''
     # Get final points of account to track growth
     final = rb.get_points()
     final = int(final.replace(',', ''))
@@ -74,7 +77,5 @@ for account in accounts:
     growth = final - initial
     msg = "Total growth of {}: {}".format(username, growth)
     log.log('Info', msg)
-    
-
-
     rb.driver.close()
+    '''
