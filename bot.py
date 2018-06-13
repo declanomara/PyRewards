@@ -130,6 +130,7 @@ class RewardsBot:
         self.profile = webdriver.FirefoxProfile('/home/declan/.mozilla/firefox/18he6f1k.auto')
         userAgentString = "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0"
         self.profile.set_preference("general.useragent.override", userAgentString)
+        self.profile.set_preference("browser.privatebrowsing.autostart", True)
         self.driver = webdriver.Firefox(self.profile)
         self.login()
 
@@ -138,6 +139,7 @@ class RewardsBot:
         self.profile = webdriver.FirefoxProfile('/home/declan/.mozilla/firefox/18he6f1k.auto')
         userAgentString = "Mozilla/5.0 (Android 5.0.1; Mobile; rv:58.0) Gecko/58.0 Firefox/58.0"
         self.profile.set_preference("general.useragent.override", userAgentString)
+        self.profile.set_preference("browser.privatebrowsing.autostart", True)
         self.driver = webdriver.Firefox(self.profile)
         self.login()
 

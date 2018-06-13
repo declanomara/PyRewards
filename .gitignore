@@ -2,3 +2,4 @@ __pycache__
 *.txt
 check.sh
 *.pyc
+test.*
